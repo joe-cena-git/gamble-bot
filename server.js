@@ -35,7 +35,7 @@ slack.on('message', function(msg){
       
       //if the text contains "roll", "die", or "dice", we'll send a random dice result back
       if(msg.text.toLowerCase().indexOf("roll") > -1 || msg.text.toLowerCase().indexOf("dice") > -1 || msg.text.toLowerCase().indexOf("die") > -1){
-        console.log("<@" + sender.id + "> rolled the dice!");
+        console.log("<@" + sender.id + "> (@" + sender.name + ") rolled the dice!");
         channel.send(rollDice(2));
       } 
       else //we only want to handle one game at a time
