@@ -21,6 +21,8 @@ slack.on('message', function(msg){
   
   if(msg.text !== undefined){
     
+    console.log("Received a message.");
+    
     //the following block of logic gets a list of user ids mentioned in the message  
     if(msg.text.indexOf("<@") > -1){
       var messageSegments = msg.text.split("<@");
@@ -33,9 +35,10 @@ slack.on('message', function(msg){
 
     //if the first user mentioned was this bot, we take action
     if(usersMentioned[1] === slack.self.id){
-      if(msg.text.indexOf("flip") > -1 || msg.text.indexOf("coin") > -1){
+      if(msg.text.toLowerCase().indexOf("flip") > -1 || msg.text.toLowerCase().indexOf("coin") > -1){
         if(usersMentioned[2] !== undefined){
           channel.send("<@" + sender.id + "> is flipping a coin, <@" + usersMentioned[2] + ">: call heads or tails!");
+          console.log("<@" + sender.id + "> challenged <@" + usersMentioned[2] + ">.");
           
           //add this game to the active games list, so that when we receive a response from a caller we can finish the game
           activeGames.push({
@@ -45,33 +48,38 @@ slack.on('message', function(msg){
           
         } else {
           channel.send("Didn't quite understand. Try `@gamble-bot: flip a coin against @slackbot`.");
+          console.log("Received invalid input, offered suggested syntax.");
         }
       }
-    } else {
-      console.log(usersMentioned[1] + " isn't me!");
+    }
+    
+    //if the sender of the message is in the list of active games, we can check for a heads/tails response
+    for(var e = 0; e < activeGames.length; e++){
+      if(activeGames[e].caller === sender.id){
+        var thisGame = activeGames[e];
+        if(msg.text.toLowerCase().indexOf("heads") > -1 && msg.text.toLowerCase().indexOf("tails") < 0){
+          if(flippedCoinWasHeads()){
+            channel.send("It's heads! <@" + thisGame.caller + "> beats <@" + thisGame.challenger + ">!");
+            console.log("Heads, <@" + thisGame.caller + "> beats <@" + thisGame.challenger + ">.");
+          } else {
+            channel.send("It's tails! <@" + thisGame.challenger + "> beats <@" + thisGame.caller + ">!");
+            console.log("Tails, <@" + thisGame.challenger + "> beats <@" + thisGame.caller + ">.");
+          }
+          activeGames = activeGames.splice(e, 1); //remove the current game from active games list
+        } else if(msg.text.toLowerCase().indexOf("tails") > -1  && msg.text.toLowerCase().indexOf("heads") < 0){
+          if(flippedCoinWasHeads()){
+            channel.send("It's heads! <@" + thisGame.challenger + "> beats <@" + thisGame.caller + ">!");
+            console.log("Heads, <@" + thisGame.challenger + "> beats <@" + thisGame.caller + ">.");
+          } else {
+            channel.send("It's tails! <@" + thisGame.caller + "> beats <@" + thisGame.challenger + ">!");
+            console.log("Tails, <@" + thisGame.caller + "> beats <@" + thisGame.challenger + ">.");
+          }
+          activeGames = activeGames.splice(e, 1); //remove the current game from active games list
+        }
+      }
     }
     
   }
-  
-  
-  // var receiver = msg._client.self.name;
-  
-  // console.log();
-  
-  // // if(msg.text !== undefined){
-  // //   if(msg.text.indexOf(slack.self.name) > -1){
-  // //     channel.send("I was just mentioned.");
-  // //   }
-  // //   //console.log(msg.text.indexOf(slack.self.name));
-  // // }
-  
-  // if(receiver === slack.self.name){
-  //   console.log(msg);
-    
-  //   //channel.send("I noticed that I was just mentioned.");
-  // }
-  
-  //channel.send("I received @" + user.name + "'s message in the Cloud9 Node server: `" + msg.text + "`");
 });
 
 slack.on('error', function(err){
@@ -79,6 +87,10 @@ slack.on('error', function(err){
 });
 
 slack.login();
+
+function flippedCoinWasHeads(){
+  return (Math.floor(Math.random() * 2) == 0);
+}
 
 
 // //
