@@ -1,6 +1,9 @@
 var Slack = require('slack-client');
 
-var slackToken = 'xoxb-13702579492-EBTrIDavIVmMhYcKoCmbBegm'; // Add a bot at https://my.slack.com/services/new/bot and copy the token here.
+//xoxb-13729068737-ptnvXro3dxiZR0zuXvHVnyeR (LH APE)
+//xoxb-13702579492-EBTrIDavIVmMhYcKoCmbBegm (FindThatApp)
+
+var slackToken = 'xoxb-13729068737-ptnvXro3dxiZR0zuXvHVnyeR'; // Add a bot at https://my.slack.com/services/new/bot and copy the token here.
 var autoReconnect = true; // Automatically reconnect after an error response from Slack.
 var autoMark = true; // Automatically mark each message as read after it is processed.
 
